@@ -55,3 +55,31 @@ def test_duplicate_ids_are_found():
 def duplicate_ids(items: list[dict]) -> set[str]:
     ids = [item["id"] for item in items]
     return {i for i in ids if ids.count(i) > 1}
+
+
+def test_tuning_and_camera_are_valid():
+    assert errors(load("tuning"), "Tuning") == []
+    assert errors(load("camera"), "CameraRig") == []
+
+
+def test_unknown_key_is_rejected():
+    tuning = load("tuning")
+    tuning["loot"]["pickup_raduis"] = 30
+    assert errors(tuning, "Tuning") != []
+
+
+def test_missing_slot_is_rejected():
+    tuning = load("tuning")
+    del tuning["loot"]["magnet_speed"]
+    assert errors(tuning, "Tuning") != []
+
+
+@pytest.mark.parametrize("group, slot, value", [
+    ("flight", "drag_fraction", 1.5),
+    ("loot", "pickup_radius", -1),
+    ("enemy_ai", "aim_cone", -0.1),
+])
+def test_out_of_range_value_is_rejected(group, slot, value):
+    tuning = load("tuning")
+    tuning[group][slot] = value
+    assert errors(tuning, "Tuning") != []
