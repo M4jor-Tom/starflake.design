@@ -26,6 +26,8 @@
                 ];
                 # PyOxigraph's PyPI wheel needs the C++ runtime at import time.
                 shellHook = ''
+                  # Run the checks before every push (.githooks/pre-push).
+                  git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .githooks
                   export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
                 '';
                 # uv's downloaded interpreters cannot run on NixOS: use the one above.
