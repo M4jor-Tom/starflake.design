@@ -1,6 +1,7 @@
 """Every check on the specification: `just test`."""
 
 from pathlib import Path
+from string import Formatter
 
 import pytest
 import yaml
@@ -83,3 +84,31 @@ def test_out_of_range_value_is_rejected(group, slot, value):
     tuning = load("tuning")
     tuning[group][slot] = value
     assert errors(tuning, "Tuning") != []
+
+
+def hud_fields() -> set[str]:
+    return set(SchemaView(str(SCHEMA)).get_enum("HudField").permissible_values)
+
+
+def test_hud_is_valid():
+    hud = load("hud")
+    assert errors(hud, "Hud") == []
+    assert duplicate_ids(hud["readouts"] + hud["messages"]) == set()
+    assert len(hud["readouts"]) == 10 and len(hud["messages"]) == 4
+    for item in hud["readouts"] + hud["messages"]:
+        assert placeholders(item["text"]) <= hud_fields(), item["id"]
+
+
+def test_placeholders_are_extracted():
+    assert placeholders("Jump to {target_name}: {fuel_missing} more") == {"target_name", "fuel_missing"}
+    assert placeholders("+") == set()
+
+
+def test_unknown_anchor_is_rejected():
+    hud = load("hud")
+    hud["readouts"][0]["anchor"] = "top_center"
+    assert errors(hud, "Hud") != []
+
+
+def placeholders(template: str) -> set[str]:
+    return {field for _, field, _, _ in Formatter().parse(template) if field}

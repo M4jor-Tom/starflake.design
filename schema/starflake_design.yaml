@@ -203,6 +203,56 @@ classes:
         range: CameraAim
         required: true
 
+  Hud:
+    tree_root: true
+    description: What the player sees. The heads-up display drawn over the game.
+    attributes:
+      message_duration_seconds:
+        description: How long a message stays on screen.
+        range: float
+        required: true
+        minimum_value: 0
+      number_decimals:
+        description: Decimals every number is rounded to when shown.
+        range: integer
+        required: true
+        minimum_value: 0
+      readouts:
+        description: >-
+          Permanent elements, listed top to bottom within an anchor. Readouts
+          that are wordings of the same line are alternatives; the features
+          state which one is shown when.
+        range: HudReadout
+        required: true
+        multivalued: true
+        inlined_as_list: true
+      messages:
+        description: Temporary messages, shown one at a time at the top centre of the screen.
+        range: HudMessage
+        required: true
+        multivalued: true
+        inlined_as_list: true
+
+  HudReadout:
+    description: A permanent element of the display.
+    slots: [id]
+    attributes:
+      anchor:
+        description: Where on the screen the readout sits.
+        range: HudAnchor
+        required: true
+      text:
+        description: What it shows. `{field}` placeholders name HudField values.
+        required: true
+
+  HudMessage:
+    description: A temporary message.
+    slots: [id]
+    attributes:
+      text:
+        description: What it says. `{field}` placeholders name HudField values.
+        required: true
+
 enums:
 
   ActionKind:
@@ -249,3 +299,38 @@ enums:
         description: >-
           Parallel to the ship's nose, so that shots fly toward the screen
           centre at any range.
+
+  HudAnchor:
+    description: A position on the screen. Lists only the anchors in use.
+    permissible_values:
+      top_left:
+      center:
+      bottom_center:
+
+  HudField:
+    description: A value a HUD text can show through a `{placeholder}`.
+    permissible_values:
+      system_name:
+        description: Name of the star system the player ship is in.
+      star_class:
+        description: Spectral class of that system's star.
+      hull:
+        description: Hull of the player ship.
+      max_hull:
+        description: Maximum hull of its ship class.
+      fuel:
+        description: Fuel the player ship holds.
+      fuel_capacity:
+        description: Fuel capacity of its ship class.
+      target_name:
+        description: Name of the selected jump target.
+      fuel_missing:
+        description: Fuel still needed to reach the current system's jump fuel cost.
+      jump_fuel_cost:
+        description: Jump fuel cost of the current system.
+      asteroid_count:
+        description: Asteroids left in the current system.
+      enemy_count:
+        description: Enemy ships left in the current system.
+      loot_count:
+        description: Loot drops floating in the current system.
