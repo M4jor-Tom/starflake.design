@@ -9,12 +9,6 @@ just lint        # only lint and check the formatting of the Python files
 just fetch       # only fetch the pinned ontology
 ```
 
-Until the ontology's `v0.2.0` tag is pushed, fetch it from a local checkout:
-
-```shell
-STARFLAKE_ONTOLOGY_REPO=file://$PWD/../ontology just test
-```
-
 `nix develop` enables the pre-push hook in `.githooks/`, which runs `just test`.
 CI runs the same command on every pull request.
 
