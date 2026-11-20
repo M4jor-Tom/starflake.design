@@ -1,0 +1,19 @@
+[project]
+name = "starflake-design"
+version = "0.1.0"
+description = "Gameplay specification for the Starflake space exploration game"
+requires-python = ">=3.10"
+
+[dependency-groups]
+dev = [
+  "linkml==1.12.1",
+  "gherkin-official",
+  "pytest",
+  "pyyaml",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

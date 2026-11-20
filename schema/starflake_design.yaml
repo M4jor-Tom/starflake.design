@@ -1,0 +1,20 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design
+name: starflake-design
+title: Starflake design
+description: |-
+  Gameplay specification for Starflake: what the player does, what the player
+  sees, and the constants that shape how it feels. Reuses the types of the
+  pinned Starflake ontology and never redefines its terms.
+
+  Units: distances in metres, time in seconds, angles in radians.
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
