@@ -24,8 +24,9 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Install just
-        run: uv tool install rust-just
+      # Keep the ruff version equal to the one flake.lock gives `nix develop`.
+      - name: Install just and ruff
+        run: uv tool install rust-just && uv tool install ruff==0.17.4
 
       - name: Run every check
         run: just test

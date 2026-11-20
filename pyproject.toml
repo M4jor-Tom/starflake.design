@@ -17,3 +17,11 @@ package = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Line length, import order, and the complexity and size rules at their
+# published defaults: McCabe complexity 10, 5 arguments, 12 branches,
+# 6 returns, 50 statements per function.
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C90", "PLR"]
+# Tests compare against literal counts.
+ignore = ["PLR2004"]

@@ -19,7 +19,9 @@ def load(name: str) -> dict:
 
 
 def errors(data: dict, root_class: str) -> list[str]:
-    return [result.message for result in validate(data, str(SCHEMA), root_class).results]
+    return [
+        result.message for result in validate(data, str(SCHEMA), root_class).results
+    ]
 
 
 def duplicate_ids(items: list[dict]) -> set[str]:
@@ -37,7 +39,10 @@ def placeholders(template: str) -> set[str]:
 
 def known_references() -> set[str]:
     hud, camera = load("hud"), load("camera")
-    ids = {item["id"] for item in load("controls")["actions"] + hud["readouts"] + hud["messages"]}
+    ids = {
+        item["id"]
+        for item in load("controls")["actions"] + hud["readouts"] + hud["messages"]
+    }
     groups = {**load("tuning"), "hud": hud, "camera": camera}
     paths = {
         f"{group}.{slot}"
@@ -87,20 +92,28 @@ def test_controls_are_valid():
     assert len(controls["actions"]) == 11
 
 
-@pytest.mark.parametrize("binding", [
-    {"device": "keyboard", "button": "left"},
-    {"device": "mouse", "key": "KeyW"},
-    {"device": "keyboard", "key": "KeyW", "button": "left"},
-    {"device": "keyboard"},
-    {"device": "keyboard", "key": "KeyZ"},
-])
+@pytest.mark.parametrize(
+    "binding",
+    [
+        {"device": "keyboard", "button": "left"},
+        {"device": "mouse", "key": "KeyW"},
+        {"device": "keyboard", "key": "KeyW", "button": "left"},
+        {"device": "keyboard"},
+        {"device": "keyboard", "key": "KeyZ"},
+    ],
+)
 def test_inconsistent_binding_is_rejected(binding):
     scheme = {"actions": [{"id": "a", "kind": "hold", "bindings": [binding]}]}
     assert errors(scheme, "ControlScheme") != []
 
 
 def test_action_without_binding_is_rejected():
-    assert errors({"actions": [{"id": "a", "kind": "hold", "bindings": []}]}, "ControlScheme") != []
+    assert (
+        errors(
+            {"actions": [{"id": "a", "kind": "hold", "bindings": []}]}, "ControlScheme"
+        )
+        != []
+    )
 
 
 def test_duplicate_ids_are_found():
@@ -124,11 +137,14 @@ def test_missing_slot_is_rejected():
     assert errors(tuning, "Tuning") != []
 
 
-@pytest.mark.parametrize("group, slot, value", [
-    ("flight", "drag_fraction", 1.5),
-    ("loot", "pickup_radius", -1),
-    ("enemy_ai", "aim_cone", -0.1),
-])
+@pytest.mark.parametrize(
+    "group, slot, value",
+    [
+        ("flight", "drag_fraction", 1.5),
+        ("loot", "pickup_radius", -1),
+        ("enemy_ai", "aim_cone", -0.1),
+    ],
+)
 def test_out_of_range_value_is_rejected(group, slot, value):
     tuning = load("tuning")
     tuning[group][slot] = value
@@ -146,7 +162,10 @@ def test_hud_is_valid():
 
 
 def test_placeholders_are_extracted():
-    assert placeholders("Jump to {target_name}: {fuel_missing} more") == {"target_name", "fuel_missing"}
+    assert placeholders("Jump to {target_name}: {fuel_missing} more") == {
+        "target_name",
+        "fuel_missing",
+    }
     assert placeholders("+") == set()
 
 
@@ -158,25 +177,41 @@ def test_unknown_anchor_is_rejected():
 
 # Minimum scenarios per feature: one per rule of the design document.
 SCENARIOS = {
-    "session": 3, "flight": 5, "combat": 6, "loot": 3, "jump": 4,
-    "respawn": 1, "enemy_ai": 4, "hud": 4, "camera": 2,
+    "session": 3,
+    "flight": 4,
+    "system_bounds": 1,
+    "combat": 5,
+    "destruction": 1,
+    "loot": 3,
+    "jump": 4,
+    "respawn": 1,
+    "enemy_ai": 4,
+    "hud": 4,
+    "camera": 2,
 }
 
 
 def test_known_references_cover_ids_and_slot_paths():
     known = known_references()
-    assert {"jump", "jump_refused", "fuel_tank_full", "loot.pickup_radius",
-            "enemy_ai.aim_cone", "hud.message_duration_seconds", "camera.follow_rate"} <= known
+    assert {
+        "jump",
+        "jump_refused",
+        "fuel_tank_full",
+        "loot.pickup_radius",
+        "enemy_ai.aim_cone",
+        "hud.message_duration_seconds",
+        "camera.follow_rate",
+    } <= known
     assert "hud.readouts" not in known
 
 
 def test_references_are_extracted_from_steps():
-    text = '''Feature: f
+    text = """Feature: f
   Scenario: s
     Given a drop within the "loot.pickup_radius"
     When the player presses "jump"
     Then the HUD flashes "jumped"
-'''
+"""
     assert references(text) == {"loot.pickup_radius", "jump", "jumped"}
     assert scenario_count(text) == 1
 
@@ -193,21 +228,30 @@ def test_features(name):
 
 
 def test_every_feature_file_is_checked():
-    assert {path.stem for path in (ROOT / "features").glob("*.feature")} == set(SCENARIOS)
+    assert {path.stem for path in (ROOT / "features").glob("*.feature")} == set(
+        SCENARIOS
+    )
 
 
 # Size limits. No published limit exists for LinkML modules: 150 lines keeps
 # one module per spec file. ESLint's max-lines defaults to 300 for code.
-MAX_LINES = {"schema/*.yaml": 150, "spec/*.yaml": 150, "features/*.feature": 150, "tests/*.py": 300}
-# gplint's max-scenarios-per-file defaults to 10; flight and combat hold 11.
-MAX_SCENARIOS = 12
+MAX_LINES = {
+    "schema/*.yaml": 150,
+    "spec/*.yaml": 150,
+    "features/*.feature": 150,
+    "tests/*.py": 300,
+}
+# gplint's and gherkin-lint's max-scenarios-per-file default.
+MAX_SCENARIOS = 10
 # gherkin_lint's TooManySteps flags a scenario of 10 steps or more.
 MAX_STEPS = 9
 
 
 @pytest.mark.parametrize("pattern", MAX_LINES)
 def test_files_stay_short(pattern):
-    lengths = {path.name: len(path.read_text().splitlines()) for path in ROOT.glob(pattern)}
+    lengths = {
+        path.name: len(path.read_text().splitlines()) for path in ROOT.glob(pattern)
+    }
     assert lengths, pattern
     assert {name: n for name, n in lengths.items() if n > MAX_LINES[pattern]} == {}
 
@@ -216,5 +260,9 @@ def test_files_stay_short(pattern):
 def test_features_stay_small(name):
     found = scenarios((ROOT / "features" / f"{name}.feature").read_text())
     assert sum("scenario" in child for child in found) <= MAX_SCENARIOS
-    steps = {block["name"]: len(block["steps"]) for child in found for block in child.values()}
+    steps = {
+        block["name"]: len(block["steps"])
+        for child in found
+        for block in child.values()
+    }
     assert {title: n for title, n in steps.items() if n > MAX_STEPS} == {}

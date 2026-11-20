@@ -23,6 +23,7 @@
                   pkgs.uv
                   pkgs.python314
                   pkgs.just
+                  pkgs.ruff # PyPI's ruff binary cannot run on NixOS
                 ];
                 # PyOxigraph's PyPI wheel needs the C++ runtime at import time.
                 shellHook = ''

@@ -4,7 +4,8 @@ Gameplay specification for Starflake: typed YAML in `spec/`, Gherkin in `feature
 
 ```shell
 nix develop      # uv, Python, just
-just test        # fetch the pinned ontology, then validate spec/ and features/
+just test        # lint, fetch the pinned ontology, then validate spec/ and features/
+just lint        # only lint and check the formatting of the Python files
 just fetch       # only fetch the pinned ontology
 ```
 
