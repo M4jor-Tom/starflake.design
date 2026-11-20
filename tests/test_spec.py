@@ -1,10 +1,12 @@
 """Every check on the specification: `just test`."""
 
+import re
 from pathlib import Path
 from string import Formatter
 
 import pytest
 import yaml
+from gherkin.parser import Parser
 from linkml.validator import validate
 from linkml_runtime import SchemaView
 
@@ -112,3 +114,81 @@ def test_unknown_anchor_is_rejected():
 
 def placeholders(template: str) -> set[str]:
     return {field for _, field, _, _ in Formatter().parse(template) if field}
+
+
+# Minimum scenarios per feature: one per rule of the design document.
+SCENARIOS = {
+    "session": 3, "flight": 5, "combat": 6, "loot": 3, "jump": 4,
+    "respawn": 1, "enemy_ai": 4, "hud": 4, "camera": 2,
+}
+PENDING = {"jump", "respawn", "enemy_ai", "hud", "camera"}
+
+
+def test_known_references_cover_ids_and_slot_paths():
+    known = known_references()
+    assert {"jump", "jump_refused", "fuel_tank_full", "loot.pickup_radius",
+            "enemy_ai.aim_cone", "hud.message_duration_seconds", "camera.follow_rate"} <= known
+    assert "hud.readouts" not in known
+
+
+def test_references_are_extracted_from_steps():
+    text = '''Feature: f
+  Scenario: s
+    Given a drop within the "loot.pickup_radius"
+    When the player presses "jump"
+    Then the HUD flashes "jumped"
+'''
+    assert references(text) == {"loot.pickup_radius", "jump", "jumped"}
+    assert scenario_count(text) == 1
+
+
+def test_unresolved_reference_is_detected():
+    assert not {"loot.pickup_radus", "jmp"} & known_references()
+
+
+@pytest.mark.parametrize("name", SCENARIOS)
+def test_features(name, request):
+    if name in PENDING:
+        request.applymarker(pytest.mark.xfail(strict=True))
+    text = (ROOT / "features" / f"{name}.feature").read_text()
+    assert references(text) <= known_references()
+    assert scenario_count(text) >= SCENARIOS[name]
+
+
+def known_references() -> set[str]:
+    hud, camera = load("hud"), load("camera")
+    ids = {item["id"] for item in load("controls")["actions"] + hud["readouts"] + hud["messages"]}
+    groups = {**load("tuning"), "hud": hud, "camera": camera}
+    paths = {
+        f"{group}.{slot}"
+        for group, slots in groups.items()
+        for slot, value in slots.items()
+        if not isinstance(value, list)
+    }
+    return ids | paths
+
+
+def scenarios(feature_text: str) -> list[dict]:
+    """Scenarios and backgrounds of a feature, including those inside rules."""
+    found = []
+    children = Parser().parse(feature_text)["feature"]["children"]
+    for child in children:
+        if "rule" in child:
+            children.extend(child["rule"]["children"])
+        else:
+            found.append(child)
+    return found
+
+
+def references(feature_text: str) -> set[str]:
+    return {
+        quoted
+        for child in scenarios(feature_text)
+        for block in child.values()
+        for step in block["steps"]
+        for quoted in re.findall(r'"([^"]*)"', step["text"])
+    }
+
+
+def scenario_count(feature_text: str) -> int:
+    return sum("scenario" in child for child in scenarios(feature_text))
