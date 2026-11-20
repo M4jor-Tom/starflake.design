@@ -121,7 +121,6 @@ SCENARIOS = {
     "session": 3, "flight": 5, "combat": 6, "loot": 3, "jump": 4,
     "respawn": 1, "enemy_ai": 4, "hud": 4, "camera": 2,
 }
-PENDING = {"jump", "respawn", "enemy_ai", "hud", "camera"}
 
 
 def test_known_references_cover_ids_and_slot_paths():
@@ -147,9 +146,7 @@ def test_unresolved_reference_is_detected():
 
 
 @pytest.mark.parametrize("name", SCENARIOS)
-def test_features(name, request):
-    if name in PENDING:
-        request.applymarker(pytest.mark.xfail(strict=True))
+def test_features(name):
     text = (ROOT / "features" / f"{name}.feature").read_text()
     assert references(text) <= known_references()
     assert scenario_count(text) >= SCENARIOS[name]
