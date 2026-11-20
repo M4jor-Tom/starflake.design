@@ -194,3 +194,27 @@ def test_features(name):
 
 def test_every_feature_file_is_checked():
     assert {path.stem for path in (ROOT / "features").glob("*.feature")} == set(SCENARIOS)
+
+
+# Size limits. No published limit exists for LinkML modules: 150 lines keeps
+# one module per spec file. ESLint's max-lines defaults to 300 for code.
+MAX_LINES = {"schema/*.yaml": 150, "spec/*.yaml": 150, "features/*.feature": 150, "tests/*.py": 300}
+# gplint's max-scenarios-per-file defaults to 10; flight and combat hold 11.
+MAX_SCENARIOS = 12
+# gherkin_lint's TooManySteps flags a scenario of 10 steps or more.
+MAX_STEPS = 9
+
+
+@pytest.mark.parametrize("pattern", MAX_LINES)
+def test_files_stay_short(pattern):
+    lengths = {path.name: len(path.read_text().splitlines()) for path in ROOT.glob(pattern)}
+    assert lengths, pattern
+    assert {name: n for name, n in lengths.items() if n > MAX_LINES[pattern]} == {}
+
+
+@pytest.mark.parametrize("name", SCENARIOS)
+def test_features_stay_small(name):
+    found = scenarios((ROOT / "features" / f"{name}.feature").read_text())
+    assert sum("scenario" in child for child in found) <= MAX_SCENARIOS
+    steps = {block["name"]: len(block["steps"]) for child in found for block in child.values()}
+    assert {title: n for title, n in steps.items() if n > MAX_STEPS} == {}
