@@ -54,3 +54,13 @@ Feature: Flight
     Given an enemy ship in a star system with a bounds radius of 10000 metres
     When the enemy ship moves farther than 10000 metres from the star
     Then the enemy ship keeps its position and its velocity
+
+  Scenario: Turning does not redirect the ship's velocity
+    Given a player ship moving at 30 metres per second along its nose
+    When the player turns the ship without holding "thrust" or "reverse"
+    Then the ship keeps moving in its former direction while drag slows it
+
+  Scenario: Thrust and reverse held together count as no throttle
+    Given a player ship moving at 30 metres per second
+    When the player holds "thrust" and "reverse" together
+    Then the ship slows down at the "flight.drag_fraction" of its ship class acceleration

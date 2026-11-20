@@ -190,3 +190,7 @@ def test_features(name):
     text = (ROOT / "features" / f"{name}.feature").read_text()
     assert references(text) <= known_references()
     assert scenario_count(text) >= SCENARIOS[name]
+
+
+def test_every_feature_file_is_checked():
+    assert {path.stem for path in (ROOT / "features").glob("*.feature")} == set(SCENARIOS)

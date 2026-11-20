@@ -59,3 +59,14 @@ Feature: Combat
     When the path of the bolt passes within the "flight.ship_hit_radius" of the player ship
     Then the player ship loses 10 hull
     And the bolt disappears
+
+  Scenario: Releasing fire does not let a weapon beat its fire rate
+    Given a player ship whose ship class has a weapon with a fire rate of 2 shots per second
+    And the weapon has just fired
+    When the player releases "fire" and holds it again 0.2 seconds later
+    Then the weapon fires its next bolt 0.5 seconds after the previous one
+
+  Scenario: Bolts in flight disappear when the player ship jumps
+    Given bolts are in flight in a star system
+    When the player ship jumps to another star system
+    Then those bolts are gone, also when the player ship comes back

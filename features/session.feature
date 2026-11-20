@@ -29,3 +29,8 @@ Feature: Session
     Then the star system holds the same 3 asteroids, where they were
     And the same loot drop, where it was
     And nothing has spawned again
+
+  Scenario: Enemy ships of a revisited star system are as they were left
+    Given an enemy ship that has lost 20 of its hull and is moving
+    When the player ship jumps away and comes back
+    Then the enemy ship has the same hull, position, velocity and attitude as when the player ship left

@@ -49,3 +49,8 @@ Feature: Jump
     Then nothing happens
     When the player presses "jump"
     Then nothing happens and the HUD flashes no message
+
+  Scenario: The selection survives a respawn
+    Given a player ship whose selected jump target is the second jump target of its star system
+    When the ship is destroyed and comes back at the arrival point
+    Then the second jump target is still the selected jump target

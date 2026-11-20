@@ -11,6 +11,7 @@ Feature: Camera
   Scenario: The camera follows the ship smoothly
     When the ship moves or turns
     Then the camera closes the gap to its "camera.offset" position at the "camera.follow_rate"
+    And the camera's direction follows the ship's at once, without smoothing
 
   Scenario: The camera snaps into place when a session starts and after a jump
     When a solo session starts
