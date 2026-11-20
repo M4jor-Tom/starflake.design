@@ -1,6 +1,6 @@
 Feature: Flight
   How a ship moves. The same rules apply to the player ship and to enemy
-  ships, except at the bounds of the star system.
+  ships. The System bounds feature covers the edge of a star system.
 
   Scenario: Thrust accelerates the ship along its nose
     Given a player ship at rest whose ship class has an acceleration of 20 metres per second squared
@@ -43,17 +43,6 @@ Feature: Flight
     Then the ship's left side dips at 1.5 radians per second
     When the player holds "roll_right"
     Then the ship's right side dips at 1.5 radians per second
-
-  Scenario: The player ship slides along the bounds of the star system
-    Given a player ship in a star system with a bounds radius of 10000 metres
-    When the ship would move farther than 10000 metres from the star
-    Then the ship is held at 10000 metres from the star
-    And the ship keeps only the part of its velocity that runs along the bounds
-
-  Scenario: Enemy ships are not held by the bounds of the star system
-    Given an enemy ship in a star system with a bounds radius of 10000 metres
-    When the enemy ship moves farther than 10000 metres from the star
-    Then the enemy ship keeps its position and its velocity
 
   Scenario: Turning does not redirect the ship's velocity
     Given a player ship moving at 30 metres per second along its nose

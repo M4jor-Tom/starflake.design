@@ -1,5 +1,5 @@
 Feature: Combat
-  Firing, bolts, damage and destruction.
+  Firing, bolts and damage. The Destruction feature covers what a hit to zero leaves.
 
   Scenario: Holding fire fires every weapon of the ship class, each at its own fire rate
     Given a player ship whose ship class has a weapon with a fire rate of 2 shots per second
@@ -39,18 +39,6 @@ Feature: Combat
     Given an asteroid with 5 integrity
     When it is hit by a bolt from a weapon with a damage of 10
     Then the asteroid has 0 integrity
-
-  Scenario: A destroyed asteroid leaves a loot drop holding its fuel
-    Given an asteroid whose type has a fuel drop of 15
-    When a hit takes its integrity to 0
-    Then the asteroid is removed from the star system
-    And a loot drop with a fuel amount of 15 floats where the asteroid was
-
-  Scenario: A destroyed enemy ship leaves a loot drop holding its fuel
-    Given an enemy ship whose type has a fuel drop of 40
-    When a hit takes its hull to 0
-    Then the enemy ship is removed from the star system
-    And a loot drop with a fuel amount of 40 floats where the enemy ship was
 
   Scenario: Enemy bolts hit only the player ship
     Given a bolt fired by an enemy ship from a weapon with a damage of 10
