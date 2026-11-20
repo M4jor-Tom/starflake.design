@@ -55,7 +55,10 @@ classes:
         range: HudAnchor
         required: true
       text:
-        description: What it shows. `{field}` placeholders name HudField values.
+        description: >-
+          What it shows. `{field}` placeholders name HudField values.
+          `{key:action}` placeholders show the inputs bound to a ControlAction,
+          as the HUD feature states.
         required: true
 
   HudMessage:
@@ -63,7 +66,7 @@ classes:
     slots: [id]
     attributes:
       text:
-        description: What it says. `{field}` placeholders name HudField values.
+        description: What it says. Takes the same placeholders as a readout.
         required: true
 
 enums:

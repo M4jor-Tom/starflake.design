@@ -38,3 +38,11 @@ Feature: HUD
     When the HUD flashes "jump_refused"
     Then only "jump_refused" is shown
     And it is shown for the "hud.message_duration_seconds" from that moment
+
+  Scenario: Key placeholders name the inputs bound to an action
+    Given "jump" is bound to the key labelled J on the player's keyboard
+    And "pitch_up" is bound to the up arrow key
+    And "fire" is bound to the Space key and to the left mouse button
+    Then the key placeholder of "jump" reads J
+    And the key placeholder of "pitch_up" reads ↑
+    And the key placeholder of "fire" reads Space or click

@@ -26,7 +26,7 @@ classes:
         required: true
         inlined: true
       fov_degrees:
-        description: Vertical field of view, in degrees.
+        description: Vertical field of view, in degrees. Greater than zero.
         range: float
         required: true
         minimum_value: 0
@@ -37,7 +37,7 @@ classes:
       follow_rate:
         description: >-
           Rate, per second, at which the camera closes the gap to its offset
-          position (exponential smoothing).
+          position (exponential smoothing). Greater than zero.
         range: float
         required: true
         minimum_value: 0

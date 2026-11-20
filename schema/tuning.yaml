@@ -58,11 +58,11 @@ classes:
         minimum_value: 0
         maximum_value: 1
       ship_hit_radius:
-        description: Radius of the sphere within which a bolt hits a ship.
+        description: Radius of the sphere within which a projectile hits a ship.
         range: Distance
         required: true
       muzzle_clearance:
-        description: How far beyond the shooter's hit radius, along its nose, a bolt starts.
+        description: How far beyond the shooter's hit radius, along its nose, a projectile starts.
         range: Distance
         required: true
 
@@ -70,11 +70,11 @@ classes:
     description: Constants of loot collection.
     attributes:
       pickup_radius:
-        description: Distance from the player ship within which a loot drop is collected.
+        description: Distance from the player ship below which a loot drop is collected.
         range: Distance
         required: true
       magnet_radius:
-        description: Distance from the player ship within which a loot drop is pulled toward it.
+        description: Distance from the player ship below which a loot drop is pulled toward it.
         range: Distance
         required: true
       magnet_speed:
@@ -86,20 +86,21 @@ classes:
     description: Constants of enemy behaviour.
     attributes:
       keep_distance:
-        description: Distance from the player ship at which an engaged enemy stops thrusting.
+        description: Distance from the player ship at or below which an engaged enemy stops thrusting.
         range: Distance
         required: true
       aim_cone:
         description: >-
-          Largest angle, in radians, between an enemy's nose and the direction
-          of the player ship at which the enemy fires.
+          Angle, in radians, between an enemy's nose and the direction
+          of the player ship below which the enemy fires.
         range: float
         required: true
         minimum_value: 0
       steering_gain:
         description: >-
           Pitch and yaw input an enemy applies per unit of sideways offset of
-          the player ship's direction, before clamping to full input.
+          the player ship's direction, before clamping to full input. Greater
+          than zero.
         range: float
         required: true
         minimum_value: 0

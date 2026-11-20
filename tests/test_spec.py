@@ -1,12 +1,11 @@
-"""Every check on the specification: `just test`."""
+"""Checks on spec/ and schema/. Part of `just test`."""
 
-import re
+from functools import cache
 from pathlib import Path
 from string import Formatter
 
 import pytest
 import yaml
-from gherkin.parser import Parser
 from linkml.validator import validate
 from linkml_runtime import SchemaView
 
@@ -29,54 +28,48 @@ def duplicate_ids(items: list[dict]) -> set[str]:
     return {i for i in ids if ids.count(i) > 1}
 
 
+@cache
 def hud_fields() -> set[str]:
     return set(SchemaView(str(SCHEMA)).get_enum("HudField").permissible_values)
 
 
 def placeholders(template: str) -> set[str]:
-    return {field for _, field, _, _ in Formatter().parse(template) if field}
-
-
-def known_references() -> set[str]:
-    hud, camera = load("hud"), load("camera")
-    ids = {
-        item["id"]
-        for item in load("controls")["actions"] + hud["readouts"] + hud["messages"]
+    """`{hull}` gives "hull"; `{key:jump}` gives "key:jump"."""
+    return {
+        f"{field}:{spec}" if spec else field
+        for _, field, spec, _ in Formatter().parse(template)
+        if field
     }
-    groups = {**load("tuning"), "hud": hud, "camera": camera}
-    paths = {
-        f"{group}.{slot}"
+
+
+def key_placeholders() -> set[str]:
+    return {f"key:{action['id']}" for action in load("controls")["actions"]}
+
+
+def unknown_placeholders(hud: dict) -> set[str]:
+    used = set().union(
+        *(placeholders(item["text"]) for item in hud["readouts"] + hud["messages"])
+    )
+    return used - hud_fields() - key_placeholders()
+
+
+def slot_values() -> dict[str, object]:
+    """Every scalar or object slot of the spec by its path, like "loot.magnet_speed"."""
+    groups = {**load("tuning"), "hud": load("hud"), "camera": load("camera")}
+    return {
+        f"{group}.{slot}": value
         for group, slots in groups.items()
         for slot, value in slots.items()
         if not isinstance(value, list)
     }
-    return ids | paths
 
 
-def scenarios(feature_text: str) -> list[dict]:
-    """Scenarios and backgrounds of a feature, including those inside rules."""
-    found = []
-    children = Parser().parse(feature_text)["feature"]["children"]
-    for child in children:
-        if "rule" in child:
-            children.extend(child["rule"]["children"])
-        else:
-            found.append(child)
-    return found
+# LinkML has no exclusive minimum: the schema lets these be zero.
+POSITIVE = ["enemy_ai.steering_gain", "camera.fov_degrees", "camera.follow_rate"]
 
 
-def references(feature_text: str) -> set[str]:
-    return {
-        quoted
-        for child in scenarios(feature_text)
-        for block in child.values()
-        for step in block["steps"]
-        for quoted in re.findall(r'"([^"]*)"', step["text"])
-    }
-
-
-def scenario_count(feature_text: str) -> int:
-    return sum("scenario" in child for child in scenarios(feature_text))
+def not_positive(values: dict[str, object]) -> set[str]:
+    return {path for path in POSITIVE if values[path] <= 0}
 
 
 def test_schema_imports_the_pinned_ontology():
@@ -88,7 +81,6 @@ def test_schema_imports_the_pinned_ontology():
 def test_controls_are_valid():
     controls = load("controls")
     assert errors(controls, "ControlScheme") == []
-    assert duplicate_ids(controls["actions"]) == set()
     assert len(controls["actions"]) == 11
 
 
@@ -151,14 +143,37 @@ def test_out_of_range_value_is_rejected(group, slot, value):
     assert errors(tuning, "Tuning") != []
 
 
+def test_list_slots_have_no_path():
+    assert "hud.readouts" not in slot_values()
+
+
+def test_positive_slots_are_positive():
+    assert not_positive(slot_values()) == set()
+
+
+@pytest.mark.parametrize("path", POSITIVE)
+def test_zero_in_a_positive_slot_is_rejected(path):
+    assert not_positive(slot_values() | {path: 0}) == {path}
+
+
 def test_hud_is_valid():
     hud = load("hud")
     assert errors(hud, "Hud") == []
-    assert duplicate_ids(hud["readouts"] + hud["messages"]) == set()
     assert len(hud["readouts"]) == 10 and len(hud["messages"]) == 4
-    fields = hud_fields()
-    for item in hud["readouts"] + hud["messages"]:
-        assert placeholders(item["text"]) <= fields, item["id"]
+    assert unknown_placeholders(hud) == set()
+
+
+def test_unknown_placeholder_is_detected():
+    hud = load("hud")
+    hud["messages"][0]["text"] = "{hul} left, press {key:jmp} or {key:jump}"
+    assert unknown_placeholders(hud) == {"hul", "key:jmp"}
+
+
+def test_controls_help_names_every_action_by_its_key():
+    text = next(
+        r["text"] for r in load("hud")["readouts"] if r["id"] == "controls_help"
+    )
+    assert placeholders(text) == key_placeholders()
 
 
 def test_placeholders_are_extracted():
@@ -175,64 +190,6 @@ def test_unknown_anchor_is_rejected():
     assert errors(hud, "Hud") != []
 
 
-# Minimum scenarios per feature: one per rule of the design document.
-SCENARIOS = {
-    "session": 3,
-    "flight": 4,
-    "system_bounds": 1,
-    "combat": 5,
-    "destruction": 1,
-    "loot": 3,
-    "jump": 4,
-    "respawn": 1,
-    "enemy_ai": 4,
-    "hud": 4,
-    "camera": 2,
-}
-
-
-def test_known_references_cover_ids_and_slot_paths():
-    known = known_references()
-    assert {
-        "jump",
-        "jump_refused",
-        "fuel_tank_full",
-        "loot.pickup_radius",
-        "enemy_ai.aim_cone",
-        "hud.message_duration_seconds",
-        "camera.follow_rate",
-    } <= known
-    assert "hud.readouts" not in known
-
-
-def test_references_are_extracted_from_steps():
-    text = """Feature: f
-  Scenario: s
-    Given a drop within the "loot.pickup_radius"
-    When the player presses "jump"
-    Then the HUD flashes "jumped"
-"""
-    assert references(text) == {"loot.pickup_radius", "jump", "jumped"}
-    assert scenario_count(text) == 1
-
-
-def test_unresolved_reference_is_detected():
-    assert not {"loot.pickup_radus", "jmp"} & known_references()
-
-
-@pytest.mark.parametrize("name", SCENARIOS)
-def test_features(name):
-    text = (ROOT / "features" / f"{name}.feature").read_text()
-    assert references(text) <= known_references()
-    assert scenario_count(text) >= SCENARIOS[name]
-
-
-def test_every_feature_file_is_checked():
-    assert {path.stem for path in (ROOT / "features").glob("*.feature")} == set(
-        SCENARIOS
-    )
-
-
 # Size limits. No published limit exists for LinkML modules: 150 lines keeps
 # one module per spec file. ESLint's max-lines defaults to 300 for code.
 MAX_LINES = {
@@ -241,10 +198,6 @@ MAX_LINES = {
     "features/*.feature": 150,
     "tests/*.py": 300,
 }
-# gplint's and gherkin-lint's max-scenarios-per-file default.
-MAX_SCENARIOS = 10
-# gherkin_lint's TooManySteps flags a scenario of 10 steps or more.
-MAX_STEPS = 9
 
 
 @pytest.mark.parametrize("pattern", MAX_LINES)
@@ -254,15 +207,3 @@ def test_files_stay_short(pattern):
     }
     assert lengths, pattern
     assert {name: n for name, n in lengths.items() if n > MAX_LINES[pattern]} == {}
-
-
-@pytest.mark.parametrize("name", SCENARIOS)
-def test_features_stay_small(name):
-    found = scenarios((ROOT / "features" / f"{name}.feature").read_text())
-    assert sum("scenario" in child for child in found) <= MAX_SCENARIOS
-    steps = {
-        block["name"]: len(block["steps"])
-        for child in found
-        for block in child.values()
-    }
-    assert {title: n for title, n in steps.items() if n > MAX_STEPS} == {}

@@ -15,7 +15,7 @@ readouts:
     text: "Fuel  {fuel} / {fuel_capacity}  (full)"
   - id: jump_route_ready
     anchor: top_left
-    text: "Jump to {target_name}: READY, press J"
+    text: "Jump to {target_name}: READY, press {key:jump}"
   - id: jump_route_fuel_short
     anchor: top_left
     text: "Jump to {target_name}: {fuel_missing} more fuel needed"
@@ -30,7 +30,9 @@ readouts:
     text: "+"
   - id: controls_help
     anchor: bottom_center
-    text: "W/S thrust  ·  A/D yaw  ·  ↑/↓ pitch  ·  Q/E roll  ·  Space or click fire  ·  Tab next jump target  ·  J jump"
+    text: "{key:thrust}/{key:reverse} thrust  ·  {key:yaw_left}/{key:yaw_right} yaw  ·  \
+      {key:pitch_up}/{key:pitch_down} pitch  ·  {key:roll_left}/{key:roll_right} roll  ·  \
+      {key:fire} fire  ·  {key:next_target} next jump target  ·  {key:jump} jump"
 messages:
   - id: welcome
     text: "Shoot asteroids and pirates, collect their fuel, then jump."
