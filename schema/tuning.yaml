@@ -1,0 +1,105 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design/tuning
+name: starflake-design-tuning
+title: "Starflake design: tuning"
+description: "Which number: constants that shape how the game feels."
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
+
+classes:
+
+  Tuning:
+    tree_root: true
+    description: >-
+      Which number. Constants that shape how the game feels and that are not
+      properties of anything in the universe.
+    attributes:
+      flight:
+        description: Constants of ship flight and of a ship as a target.
+        range: FlightTuning
+        required: true
+        inlined: true
+      loot:
+        description: Constants of loot collection.
+        range: LootTuning
+        required: true
+        inlined: true
+      enemy_ai:
+        description: Constants of enemy behaviour.
+        range: EnemyAiTuning
+        required: true
+        inlined: true
+
+  FlightTuning:
+    description: Constants of ship flight and of a ship as a target.
+    attributes:
+      drag_fraction:
+        description: >-
+          Deceleration of a ship without throttle, as a fraction of its ship
+          class acceleration.
+        range: float
+        required: true
+        minimum_value: 0
+        maximum_value: 1
+      arrival_distance_fraction:
+        description: >-
+          Distance of the arrival point from the star, on the +Z axis, as a
+          fraction of the system bounds radius.
+        range: float
+        required: true
+        minimum_value: 0
+        maximum_value: 1
+      ship_hit_radius:
+        description: Radius of the sphere within which a bolt hits a ship.
+        range: Distance
+        required: true
+      muzzle_clearance:
+        description: How far beyond the shooter's hit radius, along its nose, a bolt starts.
+        range: Distance
+        required: true
+
+  LootTuning:
+    description: Constants of loot collection.
+    attributes:
+      pickup_radius:
+        description: Distance from the player ship within which a loot drop is collected.
+        range: Distance
+        required: true
+      magnet_radius:
+        description: Distance from the player ship within which a loot drop is pulled toward it.
+        range: Distance
+        required: true
+      magnet_speed:
+        description: Speed at which a pulled loot drop moves toward the player ship.
+        range: Speed
+        required: true
+
+  EnemyAiTuning:
+    description: Constants of enemy behaviour.
+    attributes:
+      keep_distance:
+        description: Distance from the player ship at which an engaged enemy stops thrusting.
+        range: Distance
+        required: true
+      aim_cone:
+        description: >-
+          Largest angle, in radians, between an enemy's nose and the direction
+          of the player ship at which the enemy fires.
+        range: float
+        required: true
+        minimum_value: 0
+      steering_gain:
+        description: >-
+          Pitch and yaw input an enemy applies per unit of sideways offset of
+          the player ship's direction, before clamping to full input.
+        range: float
+        required: true
+        minimum_value: 0

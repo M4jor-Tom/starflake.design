@@ -1,0 +1,57 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design/camera
+name: starflake-design-camera
+title: "Starflake design: camera"
+description: "How the game is framed: the chase camera."
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
+
+classes:
+
+  CameraRig:
+    tree_root: true
+    description: How the game is framed. The chase camera behind the player ship.
+    attributes:
+      offset:
+        description: Position of the camera in the ship's own frame (+Y above, +Z behind).
+        range: Vector3D
+        required: true
+        inlined: true
+      fov_degrees:
+        description: Vertical field of view, in degrees.
+        range: float
+        required: true
+        minimum_value: 0
+      far_plane:
+        description: Distance beyond which nothing is drawn.
+        range: Distance
+        required: true
+      follow_rate:
+        description: >-
+          Rate, per second, at which the camera closes the gap to its offset
+          position (exponential smoothing).
+        range: float
+        required: true
+        minimum_value: 0
+      aim:
+        description: Where the camera looks.
+        range: CameraAim
+        required: true
+
+enums:
+
+  CameraAim:
+    description: Where the camera looks.
+    permissible_values:
+      parallel_to_nose:
+        description: >-
+          Parallel to the ship's nose, so that shots fly toward the screen
+          centre at any range.

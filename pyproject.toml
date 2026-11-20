@@ -1,0 +1,27 @@
+[project]
+name = "starflake-design"
+version = "0.1.0"
+description = "Gameplay specification for the Starflake space exploration game"
+requires-python = ">=3.10"
+
+[dependency-groups]
+dev = [
+  "linkml==1.12.1",
+  "gherkin-official",
+  "pytest",
+  "pyyaml",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Line length, import order, and the complexity and size rules at their
+# published defaults: McCabe complexity 10, 5 arguments, 12 branches,
+# 6 returns, 50 statements per function.
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C90", "PLR"]
+# Tests compare against literal counts.
+ignore = ["PLR2004"]

@@ -1,0 +1,4 @@
+# Ontology release this specification is written against.
+# Bump ONTOLOGY_REF, run `just test`, fix what breaks, commit.
+ONTOLOGY_REPO=https://github.com/M4jor-Tom/starflake.ontology.linkml.git
+ONTOLOGY_REF=v0.2.0

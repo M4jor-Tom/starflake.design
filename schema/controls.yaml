@@ -1,0 +1,120 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design/controls
+name: starflake-design-controls
+title: "Starflake design: controls"
+description: "How the player does things: input actions and their bindings."
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
+
+classes:
+
+  ControlScheme:
+    tree_root: true
+    description: How the player does things. Every action the game listens for.
+    attributes:
+      actions:
+        description: The input actions, each with its default bindings.
+        range: ControlAction
+        required: true
+        multivalued: true
+        inlined_as_list: true
+
+  ControlAction:
+    description: Something the player can ask the game to do.
+    slots: [id]
+    attributes:
+      kind:
+        description: Whether the action is held or pressed.
+        range: ActionKind
+        required: true
+      bindings:
+        description: The inputs that trigger the action. Any one of them is enough.
+        range: Binding
+        required: true
+        multivalued: true
+        inlined_as_list: true
+        minimum_cardinality: 1
+
+  Binding:
+    description: One physical input on one device.
+    attributes:
+      device:
+        description: The device the input is on.
+        range: InputDevice
+        required: true
+      key:
+        description: The keyboard key. Set only for the keyboard.
+        range: PhysicalKey
+      button:
+        description: The mouse button. Set only for the mouse.
+        range: MouseButton
+    rules:
+      - description: A keyboard binding names a key and no button.
+        preconditions:
+          slot_conditions:
+            device:
+              equals_string: keyboard
+        postconditions:
+          slot_conditions:
+            key:
+              required: true
+            button:
+              value_presence: ABSENT
+      - description: A mouse binding names a button and no key.
+        preconditions:
+          slot_conditions:
+            device:
+              equals_string: mouse
+        postconditions:
+          slot_conditions:
+            button:
+              required: true
+            key:
+              value_presence: ABSENT
+
+enums:
+
+  ActionKind:
+    description: How an action responds to its input.
+    permissible_values:
+      hold:
+        description: Active for as long as the input is held.
+      press:
+        description: Fires once each time the input is pressed.
+
+  InputDevice:
+    description: A device the player gives input with.
+    permissible_values:
+      keyboard:
+      mouse:
+
+  PhysicalKey:
+    description: >-
+      A keyboard key by physical position, named by its W3C UI Events `code`
+      value, so the binding does not depend on the keyboard layout. Lists only
+      the keys in use.
+    permissible_values:
+      KeyW:
+      KeyS:
+      KeyA:
+      KeyD:
+      KeyQ:
+      KeyE:
+      KeyJ:
+      ArrowUp:
+      ArrowDown:
+      Space:
+      Tab:
+
+  MouseButton:
+    description: A mouse button. Lists only the buttons in use.
+    permissible_values:
+      left:
