@@ -34,3 +34,6 @@ actions:
   - id: jump
     kind: press
     bindings: [{device: keyboard, key: KeyJ}]
+  - id: pause
+    kind: press
+    bindings: [{device: keyboard, key: Escape}]

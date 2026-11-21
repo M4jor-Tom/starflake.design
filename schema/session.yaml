@@ -1,0 +1,71 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design/session
+name: starflake-design-session
+title: "Starflake design: session"
+description: "How a session is hosted and what a new pilot starts with."
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
+
+classes:
+
+  SessionRules:
+    tree_root: true
+    description: >-
+      How a session is hosted and what a new pilot starts with. A session is
+      the game's view of one GalaxyState of the ontology.
+    attributes:
+      hosting_mode:
+        description: Who runs the authoritative simulation.
+        range: HostingMode
+        required: true
+      max_players:
+        description: Maximum number of players in a session at once.
+        range: integer
+        required: true
+        minimum_value: 1
+      starting_ship_class:
+        description: >-
+          The ship class every new pilot ship is built from. An identifier of
+          the galaxy the game loads, which the game resolves.
+        range: ShipClass
+        required: true
+        inlined: false
+      starting_system:
+        description: >-
+          The star system where new pilot ships appear. An identifier of the
+          galaxy the game loads, which the game resolves.
+        range: StarSystem
+        required: true
+        inlined: false
+    rules:
+      - description: A solo session holds exactly one player.
+        preconditions:
+          slot_conditions:
+            hosting_mode:
+              equals_string: solo
+        postconditions:
+          slot_conditions:
+            max_players:
+              equals_number: 1
+
+enums:
+
+  HostingMode:
+    description: Who runs the authoritative simulation of a session.
+    permissible_values:
+      solo:
+        description: Single player, simulated locally, no network.
+      player_hosted:
+        description: >-
+          The game of one player, the host, acts as server for the players
+          they invite.
+      dedicated_server:
+        description: A server not run by any player hosts the session.

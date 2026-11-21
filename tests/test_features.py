@@ -13,12 +13,13 @@ SCENARIOS = {
     "system_bounds": 1,
     "combat": 5,
     "destruction": 1,
-    "loot": 3,
+    "fuel_scoop": 3,
     "jump": 4,
     "respawn": 1,
-    "enemy_ai": 4,
+    "raider_ai": 4,
     "hud": 4,
     "camera": 2,
+    "pause": 3,
 }
 # gplint's and gherkin-lint's max-scenarios-per-file default.
 MAX_SCENARIOS = 10
@@ -29,10 +30,13 @@ MAX_STEPS = 9
 def identified() -> dict[str, list[dict]]:
     """Everything a step can quote by id, by kind."""
     hud = load("hud")
+    menus = load("menus")["menus"]
     return {
         "action": load("controls")["actions"],
         "readout": hud["readouts"],
         "message": hud["messages"],
+        "menu": menus,
+        "button": [button for menu in menus for button in menu["buttons"]],
     }
 
 
@@ -40,6 +44,10 @@ def kind(step_text: str, reference: str) -> str:
     """What a quoted reference must name, judged by the wording of its step."""
     if "." in reference:
         return "slot"
+    if f'menu "{reference}"' in step_text:
+        return "menu"
+    if "chooses" in step_text:
+        return "button"
     if "HUD shows" in step_text:
         return "readout"
     if "flashes" in step_text or "show" in step_text:
@@ -86,15 +94,26 @@ def test_ids_are_unique_across_files():
 def test_unresolved_references_are_detected():
     text = """Feature: f
   Scenario: s
-    Given a drop within the "loot.pickup_radius"
-    And a drop within the "loot.pickup_radus"
+    Given a ship within the "flight.ship_hit_radius"
+    And a ship within the "flight.ship_hit_radus"
+    And the menu "pause_menu" is open
+    And the menu "resume" is open
     When the player presses "jump"
     And the player presses "jmp"
     And the player presses "welcome"
     Then the HUD flashes "jumped"
     And the HUD shows "ship_destroyed"
+    And the player chooses "quit"
+    And the player chooses "pause_menu"
 """
-    assert unresolved(text) == {"loot.pickup_radus", "jmp", "welcome", "ship_destroyed"}
+    assert unresolved(text) == {
+        "flight.ship_hit_radus",
+        "resume",
+        "jmp",
+        "welcome",
+        "ship_destroyed",
+        "pause_menu",
+    }
     assert scenario_count(text) == 1
 
 

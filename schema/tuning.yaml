@@ -27,14 +27,9 @@ classes:
         range: FlightTuning
         required: true
         inlined: true
-      loot:
-        description: Constants of loot collection.
-        range: LootTuning
-        required: true
-        inlined: true
-      enemy_ai:
-        description: Constants of enemy behaviour.
-        range: EnemyAiTuning
+      raider_ai:
+        description: Constants of raider behaviour.
+        range: RaiderAiTuning
         required: true
         inlined: true
 
@@ -66,40 +61,20 @@ classes:
         range: Distance
         required: true
 
-  LootTuning:
-    description: Constants of loot collection.
+  RaiderAiTuning:
+    description: Constants of raider behaviour.
     attributes:
-      pickup_radius:
-        description: Distance from the player ship below which a loot drop is collected.
-        range: Distance
-        required: true
-      magnet_radius:
-        description: Distance from the player ship below which a loot drop is pulled toward it.
-        range: Distance
-        required: true
-      magnet_speed:
-        description: Speed at which a pulled loot drop moves toward the player ship.
-        range: Speed
-        required: true
-
-  EnemyAiTuning:
-    description: Constants of enemy behaviour.
-    attributes:
-      keep_distance:
-        description: Distance from the player ship at or below which an engaged enemy stops thrusting.
-        range: Distance
-        required: true
       aim_cone:
         description: >-
-          Angle, in radians, between an enemy's nose and the direction
-          of the player ship below which the enemy fires.
+          Angle, in radians, between a raider's nose and the direction
+          of the pilot ship below which the raider fires.
         range: float
         required: true
         minimum_value: 0
       steering_gain:
         description: >-
-          Pitch and yaw input an enemy applies per unit of sideways offset of
-          the player ship's direction, before clamping to full input. Greater
+          Pitch and yaw input a raider applies per unit of sideways offset of
+          the pilot ship's direction, before clamping to full input. Greater
           than zero.
         range: float
         required: true

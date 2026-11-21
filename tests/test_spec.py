@@ -54,8 +54,11 @@ def unknown_placeholders(hud: dict) -> set[str]:
 
 
 def slot_values() -> dict[str, object]:
-    """Every scalar or object slot of the spec by its path, like "loot.magnet_speed"."""
-    groups = {**load("tuning"), "hud": load("hud"), "camera": load("camera")}
+    """Every scalar or object slot of the spec by path, like "hud.number_decimals"."""
+    groups = {
+        **load("tuning"),
+        **{name: load(name) for name in ("hud", "camera", "session")},
+    }
     return {
         f"{group}.{slot}": value
         for group, slots in groups.items()
@@ -65,7 +68,7 @@ def slot_values() -> dict[str, object]:
 
 
 # LinkML has no exclusive minimum: the schema lets these be zero.
-POSITIVE = ["enemy_ai.steering_gain", "camera.fov_degrees", "camera.follow_rate"]
+POSITIVE = ["raider_ai.steering_gain", "camera.fov_degrees", "camera.follow_rate"]
 
 
 def not_positive(values: dict[str, object]) -> set[str]:
@@ -81,7 +84,7 @@ def test_schema_imports_the_pinned_ontology():
 def test_controls_are_valid():
     controls = load("controls")
     assert errors(controls, "ControlScheme") == []
-    assert len(controls["actions"]) == 11
+    assert len(controls["actions"]) == 12
 
 
 @pytest.mark.parametrize(
@@ -119,13 +122,13 @@ def test_tuning_and_camera_are_valid():
 
 def test_unknown_key_is_rejected():
     tuning = load("tuning")
-    tuning["loot"]["pickup_raduis"] = 30
+    tuning["flight"]["drag_fracton"] = 0.5
     assert errors(tuning, "Tuning") != []
 
 
 def test_missing_slot_is_rejected():
     tuning = load("tuning")
-    del tuning["loot"]["magnet_speed"]
+    del tuning["raider_ai"]["aim_cone"]
     assert errors(tuning, "Tuning") != []
 
 
@@ -133,14 +136,28 @@ def test_missing_slot_is_rejected():
     "group, slot, value",
     [
         ("flight", "drag_fraction", 1.5),
-        ("loot", "pickup_radius", -1),
-        ("enemy_ai", "aim_cone", -0.1),
+        ("flight", "ship_hit_radius", -1),
+        ("raider_ai", "aim_cone", -0.1),
     ],
 )
 def test_out_of_range_value_is_rejected(group, slot, value):
     tuning = load("tuning")
     tuning[group][slot] = value
     assert errors(tuning, "Tuning") != []
+
+
+def test_session_and_menus_are_valid():
+    assert errors(load("session"), "SessionRules") == []
+    assert errors(load("menus"), "MenuSet") == []
+
+
+def test_solo_session_with_several_players_is_rejected():
+    assert errors(load("session") | {"max_players": 4}, "SessionRules") != []
+
+
+def test_menu_without_buttons_is_rejected():
+    menu = {"id": "m", "title": "M", "buttons": []}
+    assert errors({"menus": [menu]}, "MenuSet") != []
 
 
 def test_list_slots_have_no_path():

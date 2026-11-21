@@ -113,6 +113,7 @@ enums:
       ArrowDown:
       Space:
       Tab:
+      Escape:
 
   MouseButton:
     description: A mouse button. Lists only the buttons in use.

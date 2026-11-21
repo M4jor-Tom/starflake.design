@@ -3,11 +3,6 @@ flight:
   arrival_distance_fraction: 0.1
   ship_hit_radius: 12
   muzzle_clearance: 2
-loot:
-  pickup_radius: 30
-  magnet_radius: 250
-  magnet_speed: 220
-enemy_ai:
-  keep_distance: 250
+raider_ai:
   aim_cone: 0.15
   steering_gain: 4

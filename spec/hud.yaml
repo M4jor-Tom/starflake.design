@@ -24,7 +24,7 @@ readouts:
     text: "No jump route"
   - id: counts
     anchor: top_left
-    text: "Asteroids {asteroid_count}  ·  Enemies {enemy_count}  ·  Fuel drops {loot_count}"
+    text: "Asteroids {asteroid_count}  ·  Raiders {raider_count}  ·  Fuel pods {fuel_pod_count}"
   - id: crosshair
     anchor: center
     text: "+"
@@ -32,10 +32,11 @@ readouts:
     anchor: bottom_center
     text: "{key:thrust}/{key:reverse} thrust  ·  {key:yaw_left}/{key:yaw_right} yaw  ·  \
       {key:pitch_up}/{key:pitch_down} pitch  ·  {key:roll_left}/{key:roll_right} roll  ·  \
-      {key:fire} fire  ·  {key:next_target} next jump target  ·  {key:jump} jump"
+      {key:fire} fire  ·  {key:next_target} next jump target  ·  {key:jump} jump  ·  \
+      {key:pause} pause"
 messages:
   - id: welcome
-    text: "Shoot asteroids and pirates, collect their fuel, then jump."
+    text: "Shoot asteroids and raiders, collect their fuel, then jump."
   - id: jumped
     text: "Jumped to {target_name}."
   - id: jump_refused

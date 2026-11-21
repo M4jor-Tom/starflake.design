@@ -2,7 +2,7 @@ Feature: Combat
   Firing, projectiles and damage. The Destruction feature covers what a hit to zero leaves.
 
   Scenario: Holding fire fires every weapon of the ship class, each at its own fire rate
-    Given a player ship whose ship class has a weapon with a fire rate of 2 shots per second
+    Given a pilot ship whose ship class has a weapon with a fire rate of 2 shots per second
     And another weapon with a fire rate of 5 shots per second
     When the player starts holding "fire"
     Then each weapon fires one projectile at once
@@ -21,18 +21,18 @@ Feature: Combat
     When the projectile is farther than 1500 metres from where it started
     Then the projectile disappears
 
-  Scenario: A player projectile damages the asteroid it meets
+  Scenario: A pilot projectile damages the asteroid it meets
     Given an asteroid with 30 integrity
-    And a projectile fired by the player ship from a weapon with a damage of 10
+    And a projectile fired by the pilot ship from a weapon with a damage of 10
     When the path of the projectile passes within the radius of the asteroid's type
     Then the asteroid has 20 integrity
     And the projectile disappears
 
-  Scenario: A player projectile damages the enemy ship it meets
-    Given an enemy ship with 30 hull
-    And a projectile fired by the player ship from a weapon with a damage of 10
-    When the path of the projectile passes within the "flight.ship_hit_radius" of the enemy ship
-    Then the enemy ship has 20 hull
+  Scenario: A pilot projectile damages the raider ship it meets
+    Given a raider ship with 30 hull
+    And a projectile fired by the pilot ship from a weapon with a damage of 10
+    When the path of the projectile passes within the "flight.ship_hit_radius" of the raider ship
+    Then the raider ship has 20 hull
     And the projectile disappears
 
   Scenario: Damage never takes integrity or hull below zero
@@ -40,21 +40,21 @@ Feature: Combat
     When it is hit by a projectile from a weapon with a damage of 10
     Then the asteroid has 0 integrity
 
-  Scenario: Enemy projectiles hit only the player ship
-    Given a projectile fired by an enemy ship from a weapon with a damage of 10
-    When the path of the projectile passes through an asteroid or another enemy ship
-    Then the asteroid or enemy ship is not damaged and the projectile flies on
-    When the path of the projectile passes within the "flight.ship_hit_radius" of the player ship
-    Then the player ship loses 10 hull
+  Scenario: Raider projectiles hit only the pilot ship
+    Given a projectile fired by a raider ship from a weapon with a damage of 10
+    When the path of the projectile passes through an asteroid or another raider ship
+    Then the asteroid or raider ship is not damaged and the projectile flies on
+    When the path of the projectile passes within the "flight.ship_hit_radius" of the pilot ship
+    Then the pilot ship loses 10 hull
     And the projectile disappears
 
   Scenario: Releasing fire does not let a weapon beat its fire rate
-    Given a player ship whose ship class has a weapon with a fire rate of 2 shots per second
+    Given a pilot ship whose ship class has a weapon with a fire rate of 2 shots per second
     And the weapon has just fired
     When the player releases "fire" and holds it again 0.2 seconds later
     Then the weapon fires its next projectile 0.5 seconds after the previous one
 
-  Scenario: Projectiles in flight disappear when the player ship jumps
+  Scenario: Projectiles in flight disappear when the pilot ship jumps
     Given projectiles are in flight in a star system
-    When the player ship jumps to another star system
-    Then those projectiles are gone, also when the player ship comes back
+    When the pilot ship jumps to another star system
+    Then those projectiles are gone, also when the pilot ship comes back

@@ -1,0 +1,6 @@
+menus:
+  - id: pause_menu
+    title: Paused
+    buttons:
+      - {id: resume, label: Resume}
+      - {id: quit, label: Quit}

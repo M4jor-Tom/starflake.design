@@ -82,15 +82,15 @@ enums:
     description: A value a HUD text can show through a `{placeholder}`.
     permissible_values:
       system_name:
-        description: Name of the star system the player ship is in.
+        description: Name of the star system the pilot ship is in.
       star_class:
         description: Spectral class of that system's star.
       hull:
-        description: Hull of the player ship.
+        description: Hull of the pilot ship.
       max_hull:
         description: Maximum hull of its ship class.
       fuel:
-        description: Fuel the player ship holds.
+        description: Fuel the pilot ship holds.
       fuel_capacity:
         description: Fuel capacity of its ship class.
       target_name:
@@ -101,7 +101,7 @@ enums:
         description: Jump fuel cost of the current system.
       asteroid_count:
         description: Asteroids left in the current system.
-      enemy_count:
-        description: Enemy ships left in the current system.
-      loot_count:
-        description: Loot drops floating in the current system.
+      raider_count:
+        description: Raider ships left in the current system.
+      fuel_pod_count:
+        description: Fuel pods floating in the current system.

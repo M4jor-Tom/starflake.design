@@ -1,0 +1,51 @@
+---
+id: https://w3id.org/M4jor-Tom/starflake-design/menus
+name: starflake-design-menus
+title: "Starflake design: menus"
+description: "What the player chooses from: menus and their buttons."
+
+prefixes:
+  starflake_design: https://w3id.org/M4jor-Tom/starflake-design/
+  linkml: https://w3id.org/linkml/
+default_prefix: starflake_design
+default_range: string
+
+imports:
+  - linkml:types
+  - ../.ontology/src/starflake_ontology/schema/starflake_ontology
+
+classes:
+
+  MenuSet:
+    tree_root: true
+    description: What the player chooses from. Every menu of the game.
+    attributes:
+      menus:
+        description: The menus. The features state when each one opens.
+        range: Menu
+        required: true
+        multivalued: true
+        inlined_as_list: true
+
+  Menu:
+    description: A titled list of buttons drawn over the game.
+    slots: [id]
+    attributes:
+      title:
+        description: The heading shown above the buttons.
+        required: true
+      buttons:
+        description: The buttons, listed top to bottom.
+        range: MenuButton
+        required: true
+        multivalued: true
+        inlined_as_list: true
+        minimum_cardinality: 1
+
+  MenuButton:
+    description: Something the player can choose in a menu.
+    slots: [id]
+    attributes:
+      label:
+        description: The text on the button.
+        required: true
