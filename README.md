@@ -13,3 +13,8 @@ just fetch       # only fetch the pinned ontology
 CI runs the same command on every pull request.
 
 To upgrade the ontology, bump `ONTOLOGY_REF` in `design.lock` and run `just test`.
+
+## Reporting a problem
+
+Report problems and ideas for any part of Starflake in one place:
+<https://github.com/M4jor-Tom/starflake/issues/new/choose>.
